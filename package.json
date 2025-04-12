@@ -1,0 +1,21 @@
+{
+  "name": "stackblitz-starters-jrncwvpw",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "chart.js": "^4.4.8",
+    "gsap": "3.12.7",
+    "react": "18.3.1",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "18.3.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "react-scripts": "latest"
+  }
+}
