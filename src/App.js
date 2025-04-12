@@ -22,7 +22,7 @@ function App() {
   // In StackBlitz, if no back end is available, this request will fail and we will fall back to dummy data.
 
   useEffect(() => {
-    fetch('https://SatyaEECE5642.pythonanywhere.com/api/toi_visualization_data')
+    fetch('http://127.0.0.1:5000/api/toi_visualization_data')
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
