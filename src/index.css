@@ -1,0 +1,96 @@
+/* Global Body Styles */
+body {
+    background-color: #f7f7f7; /* Light background */
+    color: #333;             /* Dark text */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Container and Layout */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff; /* White container background */
+    color: #333;
+  }
+  
+  /* Override dark background classes */
+  .bg-gray-900 {
+    background-color: #ffffff !important; /* Light background override */
+    color: #333 !important;
+  }
+  
+  /* Override text color for elements that use .text-white */
+  .text-white {
+    color: #333 !important;
+  }
+  
+  /* Header Styling */
+  header {
+    background-color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    color: #222;
+  }
+  
+  /* Card-like elements */
+  .card, .shadow-lg, .bg-gray-800 {
+    background-color: #ffffff;
+    color: #333;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* Buttons and Interactive Elements */
+  .button,
+  .btn,
+  select,
+  input {
+    background-color: #e0e0e0;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .button:hover,
+  .btn:hover {
+    background-color: #d0d0d0;
+  }
+  
+  /* Form Elements */
+  select,
+  input,
+  textarea {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    color: #333;
+  }
+  
+  /* Utility Classes (if using Tailwind-like class names) */
+  .text-center {
+    text-align: center;
+  }
+  .mt-10 {
+    margin-top: 10px;
+  }
+  .text-lg {
+    font-size: 1.125rem;
+  }
+  
+  /* Additional adjustments for your React components */
+  select {
+    padding: 6px;
+    margin-top: 4px;
+  }
+  

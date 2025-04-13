@@ -16,8 +16,7 @@ def fetch_toi_data():
              DataFrame containing the TOI table data.
     """
     tap_service = pyvo.dal.TAPService("https://exoplanetarchive.ipac.caltech.edu/TAP")
-    query = ("SELECT rowupdate, pl_eqt, pl_insol, pl_rade, pl_trandep, "
-         "pl_trandurh, pl_orbper, pl_tranmid, decstr, rastr FROM toi")
+    query = ("SELECT *FROM toi")
     try:
         result = tap_service.search(query)
         astro_table = result.to_table()
