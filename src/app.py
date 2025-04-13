@@ -4,17 +4,10 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable Cross-Origin Resource Sharing
+CORS(app) 
 
 def fetch_toi_data():
-    """
-    Connects to the NASA Exoplanet Archive TAP service and extracts
-    all columns from the TOI (TESS Project Candidates) table.
-
-    Returns:
-        df : pandas.DataFrame
-             DataFrame containing the TOI table data.
-    """
+    
     tap_service = pyvo.dal.TAPService("https://exoplanetarchive.ipac.caltech.edu/TAP")
     query = ("SELECT *FROM toi")
     try:
@@ -46,8 +39,7 @@ def toi_visualization_data():
         duration_col = None
         print("Warning: Transit Duration column not found; it will return an empty array.")
 
-    # Build a dictionary with the desired fields.
-    # We use .dropna() to eliminate missing entries.
+
     data = {}
     data["pl_orbper"] = df["pl_orbper"].dropna().tolist() if "pl_orbper" in df.columns else []
     data["pl_tranmid"] = df["pl_tranmid"].dropna().tolist() if "pl_tranmid" in df.columns else []
