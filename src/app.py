@@ -30,24 +30,16 @@ def toi_visualization_data():
     if df is None:
         return jsonify({"error": "Could not fetch TOI data"}), 500
 
-    # For transit duration, check if one of the expected columns exists.
-    if "pl_trandur" in df.columns:
-        duration_col = "pl_trandur"
-    elif "pl_trandurh" in df.columns:
-        duration_col = "pl_trandurh"
-    else:
-        duration_col = None
-        print("Warning: Transit Duration column not found; it will return an empty array.")
-
 
     data = {}
-    data["pl_orbper"] = df["pl_orbper"].dropna().tolist() if "pl_orbper" in df.columns else []
+    data["toidisplay"] = df["toidisplay"].dropna().tolist() if "toidisplay" in df.columns else []
+    data["pl_rade"] = df["pl_rade"].dropna().tolist() if "pl_rade" in df.columns else []
+    data["pl_trandurh"] = df["pl_trandurh"].dropna().tolist() if "pl_trandurh" in df.columns else []
+    data["pl_eqt"] = df["pl_eqt"].dropna().tolist() if "pl_eqt" in df.columns else []
+    data["st_dist"] = df["st_dist"].dropna().tolist() if "st_dist" in df.columns else []
+    data["toi_created"] = df["toi_created"].dropna().tolist() if "toi_created" in df.columns else []
     data["pl_tranmid"] = df["pl_tranmid"].dropna().tolist() if "pl_tranmid" in df.columns else []
-    data["pl_trandep"] = df["pl_trandep"].dropna().tolist() if "pl_trandep" in df.columns else []
-    if duration_col is not None:
-        data["pl_trandur"] = df[duration_col].dropna().tolist()
-    else:
-        data["pl_trandur"] = []
+
 
     return jsonify(data)
 

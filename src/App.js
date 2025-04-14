@@ -19,23 +19,34 @@ const ALL_FEATURES_LIST = [
   'st_disterr2', 'st_distsymerr', 'st_distlim', 'st_teff', 'st_tefferr1', 'st_tefferr2',
   'st_teffsymerr', 'st_tefflim', 'st_logg', 'st_loggerr1', 'st_loggerr2', 'st_loggsymerr',
   'st_logglim', 'st_rad', 'st_raderr1', 'st_raderr2', 'st_radsymerr', 'st_radlim',
-  'sectors', 'toi_created', 'rowupdate', 'release_date'
+  'sectors', 'toi_created', 'rowupdate', 'release_date',
+
+  // If your data has mass in Jupiter masses, you might see something like 'pl_bmassj'
+  'pl_bmassj'
 ];
 
-// A fallback dataset (for demonstration) with a subset of keys.
+// A fallback dataset for demonstration
 const fallbackData = {
+  // TOI or Planet Names
   toi: ['TOI-123', 'TOI-456', 'TOI-789', 'TOI-101', 'TOI-102', 'TOI-103', 'TOI-104', 'TOI-105', 'TOI-106', 'TOI-107'],
+  // Orbital Period (days)
   pl_orbper: [1.5, 2.3, 3.1, 4.8, 6.0, 7.2, 8.0, 9.5, 10.1, 11.0],
+  // Mid-transit times (JD)
   pl_tranmid: [
     2457001.5, 2457003.7, 2457005.9, 2457008.1, 2457010.3,
     2457012.5, 2457014.7, 2457016.9, 2457019.1, 2457021.3,
   ],
+  // Transit Duration (hours)
   pl_trandur: [2.3, 2.8, 3.0, 1.9, 2.5, 3.2, 2.0, 2.7, 2.4, 3.1],
-  pl_trandep: [150, 200, 175, 180, 210, 190, 160, 205, 195, 185],
-  pl_temp: [500, 600, 550, 700, 650, 800, 750, 850, 900, 950],
+  // Planet Radius (Earth or Jupiter radii for example)
+  pl_rade: [1.1, 1.8, 2.5, 11.2, 5.1, 9.3, 2.7, 10.0, 3.2, 15.0],
+  // Planet Mass (Jupiter masses)
+  pl_bmassj: [0.01, 0.05, 0.1, 1.0, 0.8, 2.5, 0.5, 5.0, 1.5, 10.0],
+  // Equilibrium Temperature (K)
+  pl_eqt: [500, 600, 550, 700, 650, 800, 750, 850, 900, 950],
 };
 
-// Preprocess data: keep only keys that are arrays and filter out rows with invalid values.
+// Preprocess data: keep only keys that are arrays and remove rows with invalid values.
 function preprocessFullData(data) {
   const processed = {};
   ALL_FEATURES_LIST.forEach((key) => {
@@ -47,28 +58,47 @@ function preprocessFullData(data) {
   const lengths = Object.values(processed).map((arr) => arr.length);
   const totalRows = Math.min(...lengths);
   const validIndices = [];
+
   for (let i = 0; i < totalRows; i++) {
     let valid = true;
     for (let key in processed) {
       const val = processed[key][i];
-      if (
-        val === null ||
-        val === undefined ||
-        (typeof val === 'number' && val === 0) ||
-        (typeof val === 'string' && val.trim() === '')
-      ) {
+
+      // Check for null or undefined.
+      if (val === null || val === undefined) {
         valid = false;
         break;
       }
+
+      // Check for numeric values: remove if 0 or NaN.
+      if (typeof val === 'number') {
+        if (isNaN(val) || val === 0) {
+          valid = false;
+          break;
+        }
+      }
+
+      // Check for string values: remove if empty or equal to "0" (after trimming).
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (trimmed === '' || trimmed === '0') {
+          valid = false;
+          break;
+        }
+      }
     }
+
     if (valid) validIndices.push(i);
   }
+
   const cleanedData = {};
   Object.keys(processed).forEach((key) => {
     cleanedData[key] = validIndices.map((i) => processed[key][i]);
   });
+
   return cleanedData;
 }
+
 
 // Helper: Convert current time (ms) to Julian Date.
 function getCurrentJulianDate() {
@@ -89,18 +119,17 @@ function jdToLocalDate(jd) {
   return new Date(epoch).toLocaleString();
 }
 
-// Map a temperature in Kelvin to a color (blue for 500K to red for 1000K)
-function mapTempToColor(temp) {
-  const minTemp = 500;
-  const maxTemp = 1000;
+// Map a temperature in Kelvin to a color (roughly from deep blue at 300K to red at 2000K).
+function mapTempToColor(temp, minTemp, maxTemp) {
   let ratio = (temp - minTemp) / (maxTemp - minTemp);
   ratio = Math.min(Math.max(ratio, 0), 1);
   const red = Math.round(ratio * 255);
   const blue = Math.round((1 - ratio) * 255);
-  return `rgb(${red},0,${blue})`;
+  return `rgb(${red}, 0, ${blue})`;
 }
 
-// Simple helper to prettify feature keys.
+
+// Simple helper to prettify feature keys for table display.
 function prettifyKey(key) {
   return key
     .replace(/_/g, ' ')
@@ -109,16 +138,18 @@ function prettifyKey(key) {
     .join(' ');
 }
 
-// Define a subset for visualization dropdowns.
+// A small subset of features to show in dropdowns for plotting.
 const availableFeatures = {
-  pl_orbper: 'Orbital Period (days)',
-  pl_trandur: 'Transit Duration (hours)',
-  pl_trandep: 'Transit Depth (ppm)',
-  pl_temp: 'Temperature (K)',
-  pl_tranmid: 'Transit Mid (JD)',
+  toidisplay: 'TOI Display Name',
+  pl_tranmid: 'Mid-Transit Time (JD)',
+  pl_trandurh: 'Transit Duration (hours)',
+  pl_rade: 'Planet Radius (Earth radii)',
+  st_dist: 'Distance to Star (parsecs)',
+  pl_eqt: 'Equilibrium temperature (K)',
+  toi_created: 'TOI Creation Date'
 };
 
-// Component to render a searchable table of features.
+
 function DataTable({ data, featureList, searchTerm }) {
   if (!data) return null;
 
@@ -170,14 +201,68 @@ function App() {
   const [error, setError] = useState(null);
 
   // States for user-selected features in the chart.
-  const [xFeature, setXFeature] = useState('pl_orbper');
-  const [yFeature, setYFeature] = useState('pl_trandur');
-  const [sizeFeature, setSizeFeature] = useState('pl_trandep');
-  const [colorFeature, setColorFeature] = useState('pl_temp');
+  const [xFeature, setXFeature] = useState('pl_eqt');
+  const [yFeature, setYFeature] = useState('st_dist');
+  const [sizeFeature, setSizeFeature] = useState('pl_rade');
+  const [colorFeature, setColorFeature] = useState('pl_eqt');  // Color by temperature
+  const numericAvailableFeatures = {
+    pl_tranmid: 'Mid-Transit Time (JD)',
+    pl_trandurh: 'Transit Duration (hours)',
+    pl_rade: 'Planet Radius (Earth radii)',
+    st_dist: 'Distance to Star (parsecs)',
+    pl_eqt: 'Equilibrium temperature(K)'
+  };
 
-  // States for the features table panel.
-  const [showFeatures, setShowFeatures] = useState(false);
-  const [featureSearch, setFeatureSearch] = useState('');
+  let minTemp = 0;
+  let maxTemp = 0;
+  console.log("Temperature Range → minTemp:", minTemp, "maxTemp:", maxTemp);
+
+  if (
+    transitData &&
+    colorFeature &&
+    Array.isArray(transitData[colorFeature]) &&
+    transitData[colorFeature].length > 0
+  ) {
+    const temperatureValues = transitData[colorFeature].filter(
+      (v) => typeof v === 'number' && !isNaN(v)
+    );
+    minTemp = Math.min(...temperatureValues);
+    maxTemp = Math.max(...temperatureValues);
+  }
+
+
+
+
+  // Log/Linear controls
+  const [xScale, setXScale] = useState('linear');
+  const [yScale, setYScale] = useState('linear');
+  const [showColorWarning, setShowColorWarning] = useState(false);
+
+
+  const featureUnits = {
+    pl_rade: 'Earth radii',
+    pl_bmassj: 'Jupiter mass',
+    pl_eqt: 'K',
+    st_teff: 'K',
+    st_dist: 'parsecs',
+    pl_trandurh: 'hours',
+    pl_tranmid: 'JD',
+    // fallback for unknown or unit-less
+    default: ''
+  };
+
+  function getUnit(feature) {
+    return featureUnits[feature] || featureUnits.default;
+  }
+
+  function isNumericArray(arr) {
+    return (
+      Array.isArray(arr) &&
+      arr.length > 0 &&
+      arr.every((val) => typeof val === 'number' && !isNaN(val))
+    );
+  }
+  
 
   // Fetch data from API; if error, use fallback data.
   useEffect(() => {
@@ -188,11 +273,12 @@ function App() {
       })
       .then((data) => {
         const cleanData = preprocessFullData(data);
+        console.log("cleanData:", cleanData);
         setTransitData(cleanData);
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Error loading API data; using fallback data', err);
+        console.warn('Error loading API data; using fallback data:', err);
         const cleanData = preprocessFullData(fallbackData);
         setTransitData(cleanData);
         setLoading(false);
@@ -212,187 +298,231 @@ function App() {
       </div>
     );
 
-  // Verify that key data for visualization exists.
-  if (!transitData || !transitData.pl_tranmid || transitData.pl_tranmid.length === 0) {
-    return (
-      <div className="text-center text-red-500 mt-10">
-        No valid data available.
-      </div>
-    );
-  }
+  console.log('Transit Data:', transitData);
+  const featuresReady =
+    transitData &&
+    transitData[xFeature] &&
+    transitData[yFeature] &&
+    transitData[sizeFeature] &&
+    transitData[colorFeature];
 
-  // Compute additional ephemeris info.
-  const currentJD = getCurrentJulianDate();
-  const ephemeris = transitData.pl_tranmid.map((midTransit, i) => {
-    if (
-      !transitData.toi || transitData.toi[i] === undefined ||
-      !transitData.pl_orbper || transitData.pl_orbper[i] === undefined ||
-      !transitData.pl_trandur || transitData.pl_trandur[i] === undefined ||
-      !transitData.pl_trandep || transitData.pl_trandep[i] === undefined ||
-      !transitData.pl_temp || transitData.pl_temp[i] === undefined
-    ) {
-      return null;
-    }
-    const period = transitData.pl_orbper[i];
-    const nextTransitJD = getNextTransit(midTransit, period);
-    return {
-      planet: transitData.toi[i],
-      pl_orbper: period,
-      pl_trandur: transitData.pl_trandur[i],
-      pl_trandep: transitData.pl_trandep[i],
-      pl_temp: transitData.pl_temp[i],
-      nextTransitJD,
-      nextTransitLocal: jdToLocalDate(nextTransitJD),
-    };
-  }).filter(row => row !== null);
+  const series = featuresReady
+    ? [
+      {
+        name: 'TOI Planets',
+        data: transitData[xFeature].map((_, i) => {
+          const temp = transitData[colorFeature][i];
+          return {
+            x: transitData[xFeature][i],
+            y: transitData[yFeature][i],
+            z: transitData[sizeFeature][i],
+            planet: transitData.toidisplay?.[i] || `Planet ${i + 1}`,
+            eqTemperature: temp,
+            fillColor: mapTempToColor(temp, minTemp, maxTemp)
+          };
+        })
+      }
+    ]
+    : [];
 
-  // Series data for the bubble chart.
-  const seriesData = ephemeris.map((p) => ({
-    x: p[xFeature],
-    y: p[yFeature],
-    z: p[sizeFeature],
-    meta: {
-      label: p.planet,
-      nextTransit: p.nextTransitLocal,
-      featureColorValue: p[colorFeature],
-    },
-  }));
 
-  const markerColors = ephemeris.map((p) =>
-    mapTempToColor(p[colorFeature])
-  );
+  // Axis labels from your "availableFeatures" map if available:
+  const xAxisLabel = availableFeatures[xFeature] || xFeature;
+  const yAxisLabel = availableFeatures[yFeature] || yFeature;
 
-  const series = [{ name: 'Exoplanets', data: seriesData }];
-
+  // Define chart options
   const optionsChart = {
     chart: {
       type: 'bubble',
-      height: 400,
-      background: '#ffffff',
-      animations: {
+      toolbar: {
+        show: true,
+      },
+      zoom: {
         enabled: true,
-        easing: 'easeinout',
-        speed: 1500,
-        animateGradually: { enabled: true, delay: 250 },
-        dynamicAnimation: { enabled: true, speed: 350 },
+        type: 'xy',
       },
-      zoom: { enabled: true, type: 'xy' },
-      toolbar: { show: true },
     },
-    dataLabels: { enabled: false },
-    title: {
-      text: 'Interactive 3D Bubble Chart of Exoplanet Transits',
-      align: 'center',
-      style: { fontSize: '20px', fontWeight: 'bold', color: '#333' },
-    },
-    tooltip: {
-      enabled: true,
-      custom: function({ series, seriesIndex, dataPointIndex, w }) {
-        const sData = w.config.series &&
-          w.config.series[seriesIndex] &&
-          w.config.series[seriesIndex].data;
-        if (!sData || sData.length <= dataPointIndex) return '';
-        const point = sData[dataPointIndex];
-        const meta = point.meta || {};
-        return `<div class="p-2 text-sm text-gray-800 bg-gray-100 rounded">
-                  <strong>${meta.label || 'N/A'}</strong><br/>
-                  ${prettifyKey(xFeature)}: ${point.x}<br/>
-                  ${prettifyKey(yFeature)}: ${point.y}<br/>
-                  ${prettifyKey(sizeFeature)}: ${point.z}<br/>
-                  Next Transit: ${meta.nextTransit || 'N/A'}<br/>
-                  ${prettifyKey(colorFeature)}: ${meta.featureColorValue || 'N/A'}
-                </div>`;
+    plotOptions: {
+      bubble: {
+        // Control bubble sizes
+        minBubbleRadius: 3,
+        maxBubbleRadius: 30,
       },
+    },
+    dataLabels: {
+      enabled: false,
     },
     xaxis: {
-      title: { text: availableFeatures[xFeature] || prettifyKey(xFeature), style: { fontSize: '14px', color: '#333' } },
-      tickAmount: 10,
-      labels: { style: { fontSize: '12px', color: '#333' } },
+      // Switch between 'numeric' and 'logarithmic' to emulate linear/log scales
+      type: xScale === 'log' ? 'logarithmic' : 'numeric',
+      name: xAxisLabel,
+      title: {
+        text: xAxisLabel,
+        style: {
+          fontSize: '14px',
+          fontWeight: 'bold',
+        },
+      },
     },
     yaxis: {
-      title: { text: availableFeatures[yFeature] || prettifyKey(yFeature), style: { fontSize: '14px', color: '#333' } },
-      labels: { style: { fontSize: '12px', color: '#333' } },
+      type: yScale === 'log' ? 'logarithmic' : 'numeric',
+      name: yAxisLabel,
+      title: {
+        text: yAxisLabel,
+        style: {
+          fontSize: '14px',
+          fontWeight: 'bold',
+        },
+      },
     },
-    fill: {
-      type: 'gradient',
-      gradient: { shadeIntensity: 0.8, opacityFrom: 0.8, opacityTo: 0.2, stops: [0, 100] },
+    tooltip: {
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+
+        const formatNumber = (val) =>
+          typeof val === 'number' && !isNaN(val) ? val.toFixed(3) : 'N/A';
+
+        return `
+          <div style="padding:8px;">
+            <strong>${data.planet}</strong><br/>
+            <em>${xAxisLabel}:</em> ${formatNumber(data.x)}<br/>
+            <em>${yAxisLabel}:</em> ${formatNumber(data.y)}<br/>
+            <em>${availableFeatures[sizeFeature]}:</em> ${formatNumber(data.z)}<br/>
+            <em>${availableFeatures[colorFeature]}:</em> ${formatNumber(data.eqTemperature)}
+          </div>
+        `;
+      },
     },
-    markers: { colors: markerColors },
-    theme: { palette: 'palette2' },
+
+    legend: {
+      show: false,
+    },
   };
 
   return (
     <div className="container mx-auto p-4" style={{ backgroundColor: '#f7f7f7', color: '#333' }}>
-      <h1 className="text-3xl font-bold text-center mb-6">TOI Transit and Orbital Visualizations</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">
+        TOI Transit and Orbital Visualizations
+      </h1>
+
       {/* Chart Feature Selections */}
       <div className="flex flex-wrap justify-center gap-4 mb-6">
-        {['xFeature', 'yFeature', 'sizeFeature', 'colorFeature'].map((field) => {
-          const setter =
-            field === 'xFeature'
-              ? setXFeature
-              : field === 'yFeature'
-              ? setYFeature
-              : field === 'sizeFeature'
-              ? setSizeFeature
-              : setColorFeature;
-          const value =
-            field === 'xFeature'
-              ? xFeature
-              : field === 'yFeature'
-              ? yFeature
-              : field === 'sizeFeature'
-              ? sizeFeature
-              : colorFeature;
-          const label =
-            field === 'xFeature'
-              ? 'X-axis'
-              : field === 'yFeature'
-              ? 'Y-axis'
-              : field === 'sizeFeature'
-              ? 'Bubble Size'
-              : 'Bubble Color';
-          return (
-            <div key={field} className="flex flex-col">
-              <label className="font-semibold text-gray-800">{label}:</label>
-              <select
-                className="border rounded p-2 bg-white text-gray-800"
-                value={value}
-                onChange={(e) => setter(e.target.value)}
-              >
-                {Object.keys(availableFeatures).map((key) => (
-                  <option key={key} value={key}>
-                    {prettifyKey(key)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          );
-        })}
-      </div>
-      <div className="shadow-lg rounded-lg p-4 bg-white">
-        <ReactApexChart options={optionsChart} series={series} type="bubble" height={400} />
+        {/* X-axis feature */}
+        <div className="flex flex-col">
+          <label className="font-semibold text-gray-800">X-axis:</label>
+          <select
+            className="border rounded p-2 bg-white text-gray-800"
+            value={xFeature}
+            onChange={(e) => setXFeature(e.target.value)}
+          >
+            {Object.keys(availableFeatures).map((key) => (
+              <option key={key} value={key}>
+                {availableFeatures[key]}
+              </option>
+            ))}
+          </select>
+          {/* Log/Linear toggle for X */}
+          <div className="mt-2">
+            <label className="mr-2">Scale:</label>
+            <select
+              className="border rounded p-1"
+              value={xScale}
+              onChange={(e) => setXScale(e.target.value)}
+            >
+              <option value="linear">Linear</option>
+              <option value="log">Log</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Y-axis feature */}
+        <div className="flex flex-col">
+          <label className="font-semibold text-gray-800">Y-axis:</label>
+          <select
+            className="border rounded p-2 bg-white text-gray-800"
+            value={yFeature}
+            onChange={(e) => setYFeature(e.target.value)}
+          >
+            {Object.keys(availableFeatures).map((key) => (
+              <option key={key} value={key}>
+                {availableFeatures[key]}
+              </option>
+            ))}
+          </select>
+          {/* Log/Linear toggle for Y */}
+          <div className="mt-2">
+            <label className="mr-2">Scale:</label>
+            <select
+              className="border rounded p-1"
+              value={yScale}
+              onChange={(e) => setYScale(e.target.value)}
+            >
+              <option value="linear">Linear</option>
+              <option value="log">Log</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Bubble Size feature */}
+        <div className="flex flex-col">
+          <label className="font-semibold text-gray-800">Bubble Size:</label>
+          <select
+            className="border rounded p-2 bg-white text-gray-800"
+            value={sizeFeature}
+            onChange={(e) => setSizeFeature(e.target.value)}
+          >
+            {Object.keys(availableFeatures).map((key) => (
+              <option key={key} value={key}>
+                {availableFeatures[key]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Bubble Color feature */}
+        <div className="flex flex-col">
+          <label className="font-semibold text-gray-800">Bubble Color:</label>
+          <select
+            className="border rounded p-2 bg-white text-gray-800"
+            value={colorFeature}
+            onChange={(e) => setColorFeature(e.target.value)}
+          >
+            {Object.keys(availableFeatures).map((key) => (
+              <option key={key} value={key}>
+                {availableFeatures[key]}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Toggle and Search for All Features */}
-      <div className="mt-6">
-        <button
-          onClick={() => setShowFeatures(!showFeatures)}
-          className="px-4 py-2 border rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
-        >
-          {showFeatures ? 'Hide' : 'Show'} All Features
-        </button>
-        {showFeatures && (
-          <div className="mt-4">
-            <input
-              type="text"
-              placeholder="Search features..."
-              value={featureSearch}
-              onChange={(e) => setFeatureSearch(e.target.value)}
-              className="border rounded px-2 py-1 mb-2 text-gray-800"
-            />
-            <DataTable data={transitData} featureList={ALL_FEATURES_LIST} searchTerm={featureSearch} />
-          </div>
-        )}
+      {/* Chart */}
+      <div className="shadow-lg rounded-lg p-4 bg-white">
+        <ReactApexChart
+          options={optionsChart}
+          series={series}
+          type="bubble"
+          height={500}
+        />
+      </div>
+
+      {/* A simple color scale legend (blue to red for temperature, for example) */}
+      <div className="mt-4 flex flex-col items-center">
+        <div
+          style={{
+            width: '300px',
+            height: '20px',
+            background: 'linear-gradient(to right, rgb(0,0,255), rgb(255,0,0))',
+            marginBottom: '5px',
+          }}
+        />
+        <div className="flex justify-between w-full max-w-sm text-xs text-gray-600">
+          <span>{minTemp === maxTemp ? 'N/A' : `${Math.round(minTemp)} ${getUnit(colorFeature)}`}</span>
+          <span> - </span>
+          <span>{minTemp === maxTemp ? 'No valid data' : `${Math.round(maxTemp)} ${getUnit(colorFeature)}`}</span>
+        </div>
+
+
       </div>
     </div>
   );
