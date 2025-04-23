@@ -2,13 +2,13 @@
 
 [⚡️ Edit on StackBlitz](https://stackblitz.com/~/github.com/SreeSatyaGit/ECE5642Final)
 
-## 🚀 How to Run the Project
+## How to Run the Project
 
 Follow the steps below to run both the frontend and backend locally.
 
 ---
 
-### 1️⃣ Start the Frontend (React)
+###  Start the Frontend (React)
 
 In the **first terminal**, run the following commands:
 
