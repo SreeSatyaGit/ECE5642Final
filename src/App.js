@@ -21,7 +21,7 @@ const ALL_FEATURES_LIST = [
   'st_logglim', 'st_rad', 'st_raderr1', 'st_raderr2', 'st_radsymerr', 'st_radlim',
   'sectors', 'toi_created', 'rowupdate', 'release_date',
 
-  // If your data has mass in Jupiter masses, you might see something like 'pl_bmassj'
+  
   'pl_bmassj'
 ];
 
@@ -421,7 +421,7 @@ function App() {
               </option>
             ))}
           </select>
-          {/* Log/Linear toggle for X */}
+          
           <div className="mt-2">
             <label className="mr-2">Scale:</label>
             <select
@@ -435,7 +435,7 @@ function App() {
           </div>
         </div>
 
-        {/* Y-axis feature */}
+        
         <div className="flex flex-col">
           <label className="font-semibold text-gray-800">Y-axis:</label>
           <select
@@ -463,7 +463,7 @@ function App() {
           </div>
         </div>
 
-        {/* Bubble Size feature */}
+        
         <div className="flex flex-col">
           <label className="font-semibold text-gray-800">Bubble Size:</label>
           <select
@@ -478,8 +478,7 @@ function App() {
             ))}
           </select>
         </div>
-
-        {/* Bubble Color feature */}
+            
         <div className="flex flex-col">
           <label className="font-semibold text-gray-800">Bubble Color:</label>
           <select
@@ -496,7 +495,7 @@ function App() {
         </div>
       </div>
 
-      {/* Chart */}
+
       <div className="shadow-lg rounded-lg p-4 bg-white">
         <ReactApexChart
           options={optionsChart}
@@ -506,7 +505,7 @@ function App() {
         />
       </div>
 
-      {/* A simple color scale legend (blue to red for temperature, for example) */}
+
       <div className="mt-4 flex flex-col items-center">
         <div
           style={{
