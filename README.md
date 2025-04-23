@@ -21,3 +21,12 @@ npm install
 
 # Start the React development server
 npm start
+
+# Navigate to the same project directory if not already there
+cd ECE5642Final
+
+# Run the Python backend
+python3 app.py
+
+
+Let me know if you'd like to add sections for features, license, screenshots, or contribution guidelines!
