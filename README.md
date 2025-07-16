@@ -4,7 +4,7 @@ Interactive exoplanet transit dashboard with React, Apex Charts, and Tailwind CS
 
 ## 🎥 Demo
 
-[![Watch the Demo](thumbnail.png)](Demo.mp4)
+[![Watch the Demo](https://raw.githubusercontent.com/SreeSatyaGit/ECE5642/main/thumbnail.png)](https://raw.githubusercontent.com/SreeSatyaGit/ECE5642/main/Demo.mp4)
 
 
 
