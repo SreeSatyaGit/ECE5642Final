@@ -2,6 +2,12 @@
 
 Interactive exoplanet transit dashboard with React, Apex Charts, and Tailwind CSS—enabling dynamic parameter selection, real time scaling, and custom tooltips. Developed a Flask/pyvo REST API to fetch, clean, and serve NASA Exoplanet Archive TOI data with CORS and fallback support. <img width="468" height="36" alt="image" src="https://github.com/user-attachments/assets/3c99f2bc-82ba-413f-a9f4-84264b0a44f3" />
 
+<video width="100%" controls>
+  <source src="EECE5642-20250414_194218-Meeting Recording.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+
 
 [⚡️ Edit on StackBlitz](https://stackblitz.com/~/github.com/SreeSatyaGit/ECE5642Final)
 
